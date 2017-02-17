@@ -35,4 +35,16 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
 
+    @RequestMapping(method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<ProductDTO> saveProduct(@Valid @RequestBody ProductDTO productDTO) {
+        return new ResponseEntity<>(productService.saveProduct(productDTO), HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @ResponseBody
+    public ProductDTO updateProduct(@PathVariable("id") Long id, @Valid @RequestBody ProductDTO productDTO) {
+        return productService.updateProduct(id, productDTO);
+    }
+
 }

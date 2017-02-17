@@ -100,6 +100,86 @@ public class ProductControllerTest {
                 .andExpect(status().isNoContent());;
     }
 
+    @Test
+    public void saveNewProductTest() throws Exception {
+        when(productService.saveProduct(any())).thenReturn(buildProduct(false));
+
+        mockMvc.perform(post("/products")
+                .content(objectMapper.writeValueAsString(buildProduct(true)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Product 1")))
+                .andExpect(jsonPath("$.description", is("Description Product 1")))
+                .andExpect(jsonPath("$.category", is("ELECTRONIC")))
+                .andExpect(jsonPath("$.price", is(18.99)))
+                .andExpect(jsonPath("$.changeDate", is("15/02/2017")));
+    }
+
+    @Test
+    public void saveNewProductMissingNameAndDescriptionTest() throws Exception {
+        when(productService.saveProduct(any())).thenReturn(buildProduct(false));
+
+        ProductDTO productDTO = buildProduct(false);
+        productDTO.setName(null);
+        productDTO.setDescription(null);
+
+        MvcResult mvcResult = mockMvc.perform(post("/products")
+                .content(objectMapper.writeValueAsString(productDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Nome deve ser informado");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Descricao deve ser informado");
+    }
+
+    @Test
+    public void saveNewProductWithPriceZeroTest() throws Exception {
+        when(productService.saveProduct(any())).thenReturn(buildProduct(false));
+
+        ProductDTO productDTO = buildProduct(false);
+        productDTO.setPrice(0.0);
+
+        MvcResult mvcResult = mockMvc.perform(post("/products")
+                .content(objectMapper.writeValueAsString(productDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("Valor deve ser maior que 0");
+    }
+
+    @Test
+    public void updateProductSuccessTest() throws Exception {
+        when(productService.updateProduct(any(), any())).thenReturn(buildProduct(false));
+
+        mockMvc.perform(put("/products/1")
+                .content(objectMapper.writeValueAsString(buildProduct(false)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Product 1")))
+                .andExpect(jsonPath("$.description", is("Description Product 1")))
+                .andExpect(jsonPath("$.category", is("ELECTRONIC")))
+                .andExpect(jsonPath("$.price", is(18.99)))
+                .andExpect(jsonPath("$.changeDate", is("15/02/2017")));
+    }
+
+    @Test
+    public void updateProductNotFountTest() throws Exception {
+        when(productService.updateProduct(any(), any())).thenThrow(new EntityNotFoundException());
+
+        mockMvc.perform(put("/products/1")
+                .content(objectMapper.writeValueAsString(buildProduct(false)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());;
+    }
 
 
     private ProductDTO buildProduct(boolean isNew) {

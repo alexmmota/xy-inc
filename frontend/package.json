@@ -6,8 +6,10 @@
     "react-scripts": "0.9.0"
   },
   "dependencies": {
+    "jquery": "^3.1.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-materialize": "^0.18.1",
     "react-notify-toast": "^0.1.4",
     "react-toastr": "^2.8.2"
   },

@@ -60,6 +60,26 @@ public class ProductControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    public void getProductsByIdSuccessTest() throws Exception{
+        when(productService.getProductById(1l)).thenReturn(buildProduct(false));
+        mockMvc.perform(get("/products/1")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("Product 1")))
+                .andExpect(jsonPath("$.description", is("Description Product 1")))
+                .andExpect(jsonPath("$.category", is("ELECTRONIC")))
+                .andExpect(jsonPath("$.price", is(18.99)))
+                .andExpect(jsonPath("$.changeDate", is("15/02/2017")));
+    }
+
+    @Test
+    public void getProductByIdNoContentTest() throws Exception {
+        when(productService.getProductById(1l)).thenThrow(new EntityNotFoundException());
+        mockMvc.perform(get("/products/1")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 
 
     private ProductDTO buildProduct(boolean isNew) {

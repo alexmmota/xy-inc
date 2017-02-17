@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <PRODUCT
+        ID="1"
+        NAME="PRODUCT 1"
+        DESCRIPTION="Descricao do produto 1 alterado"
+        CATEGORY="ELECTRONIC"
+        PRICE="299.00"
+        CHANGE_DATE="2017-02-15"/>
+</dataset>

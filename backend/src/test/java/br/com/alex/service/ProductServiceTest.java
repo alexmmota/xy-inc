@@ -106,6 +106,22 @@ public class ProductServiceTest {
         productService.updateProduct(1l, productDTO);
     }
 
+    @Test
+    public void deleteProductSuccessTest() {
+        when(productRepositoryMock.findOne(1l)).thenReturn(buildProduct(true));
+
+        boolean result = productService.deleteProduct(1l);
+        assertThat(result).isEqualTo(true);
+    }
+
+    @Test (expected = EntityNotFoundException.class)
+    public void deleteProductNotFoundTest() {
+        when(productRepositoryMock.findOne(2l)).thenReturn(null);
+        productService.deleteProduct(2l);
+    }
+
+
+
     private Product buildProduct(boolean hasId) {
         Product product = new Product();
         product.setId(hasId ? 1l : null);

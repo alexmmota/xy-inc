@@ -6,7 +6,7 @@ import Notifications, {notify} from 'react-notify-toast';
 
 class App extends Component {
 
-  constructor() {
+constructor() {
     super();
     this.state = {
       id: '',
@@ -17,6 +17,46 @@ class App extends Component {
       listProducts: [],
       errors: []
     };
+  }
+
+  componentWillMount() {
+    this.getAllProducts();
+
+    this.setName = this.setName.bind(this);
+    this.setDescription = this.setDescription.bind(this);
+    this.setCategory = this.setCategory.bind(this);
+    this.setPrice = this.setPrice.bind(this);
+  }
+
+  getAllProducts() {
+    this.setState({errors: []});
+    $.ajax({
+      url: 'http://localhost:8080/zup/products',
+      contentType:'application/json',
+      dataType:'json',
+      type:'get',
+      success: function(resposta){
+        if(resposta) {
+          this.setState({listProducts: resposta});
+        } else {
+          this.setState({listProducts: []});
+        }
+      }.bind(this),
+      error: function(resposta){
+        console.log("erro");
+      }
+    });
+  }
+
+  clearProduct(){
+    this.setState({
+      id: '',
+      name: '',
+      description: '',
+      category: 'CLOTHES',
+      price: '0.00',
+      errors: []
+    });
   }
 
   setName(event) {
@@ -48,8 +88,110 @@ class App extends Component {
 
   sendForm(event) {
     event.preventDefault();
+    var product = {
+      id: this.state.id,
+      name: this.state.name,
+      description: this.state.description,
+      category: this.state.category,
+      price: this.state.price
+    };
+
+    if(product.id) {
+      this.updateProduct(product);
+    } else {
+      this.saveNewProduct(product);
+    }
   }
 
+  updateProduct(product, id) {
+    $.ajax({
+      url: 'http://localhost:8080/zup/products/'+product.id,
+      contentType:'application/json',
+      dataType:'json',
+      type:'put',
+      data: JSON.stringify(product),
+      success: function(resposta){
+        this.setState({errors: []});
+        this.clearProduct();
+        this.getAllProducts();
+        notify.show('Produto atualizado com sucesso','success',3000);
+      }.bind(this),
+      error: function(resposta){
+        if(resposta.status === 400) {
+          this.setState({errors: resposta.responseJSON});
+        }
+        notify.show('Erro ao atualizar Produto','error',3000);
+        console.log("erro"+resposta);
+      }.bind(this)
+    });
+  }
+
+  saveNewProduct(product) {
+    $.ajax({
+      url: 'http://localhost:8080/zup/products/',
+      contentType:'application/json',
+      dataType:'json',
+      type:'post',
+      data: JSON.stringify(product),
+      success: function(resposta){
+        this.setState({errors: []});
+        this.clearProduct();
+        this.getAllProducts();
+        notify.show('Produto criado com sucesso','success',4000);
+      }.bind(this),
+      error: function(resposta){
+        if(resposta.status === 400) {
+          this.setState({errors: resposta.responseJSON});
+        }
+        notify.show('Erro ao criar Produto','error',4000);
+        console.log("erro"+resposta);
+      }.bind(this)
+    });
+  }
+
+  callForm(id) {
+    this.setState({errors: []});
+    $.ajax({
+      url: 'http://localhost:8080/zup/products/'+id,
+      contentType:'application/json',
+      dataType:'json',
+      type:'get',
+      success: function(resposta){
+        this.setState({
+          id: resposta.id,
+          name: resposta.name,
+          description: resposta.description,
+          category: resposta.category,
+          price: resposta.price,
+        });
+      }.bind(this),
+      error: function(resposta){
+        console.log("erro");
+      }
+    });    
+  }
+
+  removeItem(id, event) {
+    if(id) {
+      $.ajax({
+        url: 'http://localhost:8080/zup/products/'+id,
+        contentType:'application/json',
+        dataType:'json',
+        type:'delete',
+        success: function(resposta){
+          this.getAllProducts();
+          this.clearProduct();
+          notify.show('Produto removido com sucesso','success',4000);
+        }.bind(this),
+        error: function(resposta){
+          notify.show('Falha ao remover produto','error',4000);
+          console.log("erro");
+        }
+      });
+    } else {
+      notify.show('Escolha um produto para remover','warning',4000);
+    }
+  }
 
   render() {
     return (
@@ -60,12 +202,18 @@ class App extends Component {
 
         <Notifications />
 
-
+        <ul>
+          {
+            this.state.errors.map(function (item, i) {
+              return <li key={i}>{item}</li>
+            })
+          }
+        </ul>
 
         <Row>
           <Col s={6}>
             <div style={{textAlign: 'left'}}>
-              <button type="button" className="btn-add btn">Novo</button>
+              <button type="button" onClick={this.clearProduct.bind(this)} className="btn-add btn">Novo</button>
             </div>
             <table className="striped">
               <thead>
@@ -80,7 +228,7 @@ class App extends Component {
               <tbody>
                 {
                   this.state.listProducts.map(function (item, i) {
-                    return <tr key={i} style={{cursor: 'pointer'}}><td>{item.id}</td><td>{item.name}</td><td>{item.category}</td><td>R$ {item.price}</td></tr>
+                    return <tr key={i} onClick={()=>this.callForm(item.id)} style={{cursor: 'pointer'}}><td>{item.id}</td><td>{item.name}</td><td>{item.category}</td><td>R$ {item.price}</td></tr>
                   }.bind(this))
                 }
               </tbody>
@@ -105,7 +253,7 @@ class App extends Component {
                   <Input s={12} label="Preço" placeholder="Preço" onChange={this.setPrice} value={this.state.price} />
                   <Row>
                     <Col s={6}><Button type="submit" waves='light'>Salvar</Button></Col>
-                    <Col s={6}><button type="button" className="btn-delete btn">Excluir</button></Col>
+                    <Col s={6}><button type="button" onClick={this.removeItem.bind(this, this.state.id)} className="btn-delete btn">Excluir</button></Col>
                   </Row>
               </Row>
             </form>

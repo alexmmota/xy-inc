@@ -19,8 +19,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -62,6 +63,18 @@ public class ProductServiceTest {
     public void getProductByIdNotFoundTest() {
         when(productRepositoryMock.findOne(2l)).thenReturn(null);
         productService.getProductById(2l);
+    }
+
+    @Test
+    public void saveNewProductSuccessTest() {
+        when(productRepositoryMock.save(any(Product.class))).thenReturn(buildProduct(true));
+
+        ProductDTO productDTO = productService.saveProduct(buildProductDTO(false));
+        assertThat(productDTO.getId()).isEqualTo(1l);
+        assertThat(productDTO.getName()).isEqualTo("Product 1");
+        assertThat(productDTO.getDescription()).isEqualTo("Description Product 1");
+        assertThat(productDTO.getCategory()).isEqualTo(Category.ELECTRONIC);
+        assertThat(productDTO.getPrice()).isEqualTo(18.99);
     }
 
 

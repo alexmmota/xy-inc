@@ -10,4 +10,6 @@ public interface ProductService {
 
     ProductDTO getProductById(Long id);
 
+    ProductDTO saveProduct(ProductDTO productDTO);
+
 }

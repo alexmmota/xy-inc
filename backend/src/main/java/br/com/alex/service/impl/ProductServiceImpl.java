@@ -9,6 +9,7 @@ import br.com.alex.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,18 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.productDTOToProduct(productDTO);
         product = productRepository.save(product);
         return productMapper.productToProductDTO(product);
+    }
+
+    @Override
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
+        Product product = productRepository.findOne(id);
+        if(product == null) {
+            throw new EntityNotFoundException("Produto não encontrado!");
+        } else {
+            product = productMapper.productDTOToProduct(productDTO);
+            product = productRepository.save(product);
+            return productMapper.productToProductDTO(product);
+        }
     }
 
 }

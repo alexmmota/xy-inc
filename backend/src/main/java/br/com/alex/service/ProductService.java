@@ -12,4 +12,6 @@ public interface ProductService {
 
     ProductDTO saveProduct(ProductDTO productDTO);
 
+    ProductDTO updateProduct(Long id, ProductDTO productDTO);
+
 }

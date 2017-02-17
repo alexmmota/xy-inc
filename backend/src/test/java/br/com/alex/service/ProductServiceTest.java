@@ -46,6 +46,24 @@ public class ProductServiceTest {
         productService.getProducts();
     }
 
+    @Test
+    public void getProductByIdSuccessTest() {
+        when(productRepositoryMock.findOne(1l)).thenReturn(buildProduct(true));
+
+        ProductDTO productDTO = productService.getProductById(1l);
+        assertThat(productDTO.getId()).isEqualTo(1l);
+        assertThat(productDTO.getName()).isEqualTo("Product 1");
+        assertThat(productDTO.getDescription()).isEqualTo("Description Product 1");
+        assertThat(productDTO.getCategory()).isEqualTo(Category.ELECTRONIC);
+        assertThat(productDTO.getPrice()).isEqualTo(18.99);
+    }
+
+    @Test (expected = EntityNotFoundException.class)
+    public void getProductByIdNotFoundTest() {
+        when(productRepositoryMock.findOne(2l)).thenReturn(null);
+        productService.getProductById(2l);
+    }
+
 
     private Product buildProduct(boolean hasId) {
         Product product = new Product();

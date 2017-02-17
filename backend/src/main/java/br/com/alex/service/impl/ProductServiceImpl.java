@@ -29,6 +29,12 @@ public class ProductServiceImpl implements ProductService {
         return products.stream().map(p -> productMapper.productToProductDTO(p)).collect(Collectors.toList());
     }
 
-
+    @Override
+    public ProductDTO getProductById(Long id) {
+        Product product = productRepository.findOne(id);
+        if(product == null)
+            throw new EntityNotFoundException("Produto não encontrado!");
+        return productMapper.productToProductDTO(product);
+    }
 
 }

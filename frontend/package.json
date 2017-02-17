@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-dom": "^15.4.2",
+    "react-notify-toast": "^0.1.4",
+    "react-toastr": "^2.8.2"
   },
   "scripts": {
     "start": "react-scripts start",

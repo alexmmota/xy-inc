@@ -81,6 +81,26 @@ public class ProductControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    public void deleteProductSuccessTest() throws Exception {
+        when(productService.deleteProduct(any())).thenReturn(true);
+
+        mockMvc.perform(delete("/products/1")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void deleteProductNotFountTest() throws Exception {
+        when(productService.deleteProduct(any())).thenThrow(new EntityNotFoundException());
+
+        mockMvc.perform(delete("/products/1")
+                .content(objectMapper.writeValueAsString(buildProduct(false)))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());;
+    }
+
+
 
     private ProductDTO buildProduct(boolean isNew) {
         ProductDTO productDTO = new ProductDTO();

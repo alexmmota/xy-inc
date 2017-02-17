@@ -29,4 +29,10 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public boolean deleteProducts(@PathVariable("id") Long id) {
+        return productService.deleteProduct(id);
+    }
+
 }
